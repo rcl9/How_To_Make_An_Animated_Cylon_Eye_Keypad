@@ -1,0 +1,57 @@
+; Keypad Encoding tables and values
+; By Robert Lansdale, March 30, 1987.
+
+; NOTE: a comma can be returned from the keypad by pressing the Shift up,
+;	or shift down keys with the YES or NO keys.
+
+	.z80
+
+public	keyt1
+public	keyt2
+public	keyt3
+
+; ------------------ Key Value Definitions -----------------------
+
+; Remember to update keytbls.h too!
+
+cancel		equ	03h		; cancel key (control C)
+enter		equ	0dh		; enter key
+f1		equ	080h		; function key # 1
+f2		equ	081h		; function key # 2
+f3		equ	082h		; function key # 3
+f4		equ	083h		; function key # 4
+f5		equ	084h		; function key # 5
+f6		equ	085h		; function key # 6
+f7		equ	086h		; function key # 7
+f8		equ	087h		; function key # 8
+f9		equ	088h		; function key # 9
+f10		equ	089h		; function key # 10
+f11		equ	08ah		; function key # 11
+f12		equ	08bh		; function key # 12
+yes_left_curs	equ	8		; yes, or left_cursor (back space)
+no_right_curs	equ	08ch		; no, or right_cursor
+up_curs		equ	08dh		; up cursor key
+down_curs	equ	08eh		; down cursor key
+
+; ------------------- Key Position Definitions -------------------
+
+; unshifted keys
+
+keyt1:		defb	'0','1','2','3','4',yes_left_curs,no_right_curs,enter
+		defb	'5','6','7','8','9',up_curs,down_curs,0
+		defb	f1,f2,f3,f4,f5,f6,cancel,0
+
+; shift down keys
+
+keyt2:		defb	'b','d','f','h','j',',',',',enter
+		defb	'l','n','p','r','t','v','x',0
+		defb	'y','z',' ','_','.','?','!',0
+		
+; shift up keys
+
+keyt3:		defb	'a','c','e','g','i',',',',',enter
+		defb	'k','m','o','q','s','u','w',0
+		defb	f7,f8,f9,f10,f11,f12,':',0
+
+		end
+

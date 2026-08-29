@@ -1,0 +1,270 @@
+.comment\
+**************************************************************
+*
+*              Animated 'Cylon Eye' Z80 Support Code
+*
+*    Derived from the 'PhoenIX MIDI Computer' pmon.mac, 1987
+*
+*    By RCL9
+*	(Rob's Retro Computing Archive)
+*	RetroComputingArchive@gmail.com
+*	https://github.com/rcl9
+*
+**************************************************************\
+
+; To be compiled with the Microsoft M80.com assembler for CP/M
+
+	.z80
+	org	0000
+	cseg
+
+; LED display hardware register
+ledreg		equ	0ch	; LED register
+
+; Z80 SIO port defines
+sio$a$data	equ	00h	; SIO channel a i/o
+sio$a$ctrl	equ	02h
+
+; Local memory variables
+cylon$info	defb 	00	; bit encoded byte to describe direction and position of eye
+ticks_		defw	00	; 16 bit system 1ms timer count
+user_timer	defb	00	; 8 bit system timer count
+cylon$ticks	defw 	00	; ticks until next eye update
+init$cylon$count defw	00	; number to 1ms ticks between cylon eye update
+
+; ------------------------------------------------------------------------------------------
+
+; Z80 SIO interrupt vectors
+
+sio$vectors:
+
+siovec1:	defw	midi$int$send	; Ch B Transmit Buffer empty
+siovec2:	defw	return		; CH B Ext/Status change
+siovec3:	defw	midi$handler	; Ch B Recieve character available
+siovec4:	defw	midi$error	; Ch B Parity, Rx overrrun, framing errors
+
+siovec5:	defw	rs232$int$send	; Ch A Transmit Buffer empty
+siovec6:	defw	rs232$ext$stat 	; CH A Ext/Status change
+siovec7:	defw	rs232$handler  	; Ch A Recieve character available
+siovec8:	defw	rs232$error	; Ch A Parity, Rx overrrun, framing errors
+
+; ------------------------------------------------------------------------------------------
+
+; Set up everything for the CYLON eye demo run in the background by the rs232$ext$status
+; interrupt driver
+
+; A value of '49h' seems to give 60 revolutions per second
+
+cylon$setup:
+;	----- initialize z-sio serial --------
+
+; initialize SIO A registers
+
+		ld	c,sio$a$ctrl
+		ld	b,tbl$a$length
+		ld	hl,sio$a$tbl
+		otir			; send to SIO A control register
+
+; initialize SIO B, and the interrupt vector
+
+		ld	c,sio$b$ctrl
+		ld	b,tbl$b$length
+		ld	hl,sio$b$tbl
+		otir			; send to SIO A control register
+
+		jp	inipio		; go init z80 pio
+
+sio$a$tbl:	defb	18H	; channel reset
+
+		defb	00010000B ; reset EXT/Status interrupts
+
+		defb	4	; select Write register 4
+		defb	4CH	; 16x clock, 2 stop bits, no parity
+
+		defb	3	; Select write register 3
+		defb	0C1H	; 8 data bits, Rx Enable only
+
+		defb	5	; Select write register 5
+		defb	01101000B ; enable Tx, Tx 8 bits
+
+		defb	00010000B ; reset EXT/Status interrupts
+
+		defb	1
+		defb	00011111B ; status affects vector
+				; Tx INT enable, EXT INT enable
+				; INT on all received characters
+
+tbl$a$length	equ	$ - sio$a$tbl
+
+
+sio$b$tbl:	defb	18H	; channel reset
+
+		defb	2	; program the interrupt vector
+		defb	sio$vectors - ((sio$vectors / 256) * 256) ; send LSB of vector address
+
+		defb	00010000B ; reset EXT/Status interrupts
+
+		defb	4	; select Write register 4
+		defb	4CH	; 16x clock, 2 stop bits, no parity
+
+		defb	3	; Select write register 3
+		defb	0C1H	; 8 data bits, Rx Enable only
+
+		defb	5	; Select write register 5
+		defb	01101000B ; enable Tx, Tx 8 bits
+
+		defb	00010000B ; reset EXT/Status interrupts
+
+		defb	1
+		defb	00011110B ; status affects vector,
+				; Tx INT enable, EXT INT disable
+				; INT on all received characters
+
+tbl$b$length	equ	$ - sio$b$tbl
+
+
+;	----- initialize parallel z80pio -------
+
+; Pio-A is connected to the footswitches (bits 5 & 6) and drum pad # 8 (bit 7)
+; Pio-B is connnected to 8 drum pads # 0 - 7
+
+; ** NOTE: If one of the interrupt input pins is stuck high, or is permanently
+; high then NO OTHER level transitions will be noticed! It locks them out!
+
+; Program Sio-A for vectored interrupts on footswitch bits 5 and 6
+
+inipio:	ld	a,11001111b	; select input mode 3
+	out	(pa$ctrl),a
+	ld	a,0ffh		; set bits to input
+	out	(pa$ctrl),a
+	ld	a,10110111b	; Set interrupt mode (OR, Active low)
+	out	(pa$ctrl),a
+	ld	a,10011111b	; only interrupt on footswitch bits 5 and 6
+	out	(pa$ctrl),a
+	lä	a, low(pio$vectors)	» senä LSÂ oæ vectoò address
+	out	(pa$ctrl),a
+
+	; Program Pio-B for no interrupts
+
+	ld	a,11001111b	; select input mode 3
+	out	(pb$ctrl),a
+	ld	a,0ffh		; set bits to input
+	out	(pb$ctrl),a
+	ld	a,00000111b	; disable bit interrupt
+	out	(pb$ctrl),a
+	ld	a, low(pio$vectors + 2)	; send LSB of vector address
+	out	(pb$ctrl),a
+
+	; ------  Set up the 1ms System Timer  ------
+
+	; Remember: an interrupt will occur on the SYNCA* line
+	;	for EVERY clock transition, so program the
+	;	8253 for 1/2 the desired frequency of the
+	;	software clock (or program the counter with
+	;	the value * 2)
+
+	ld	a,10110111b	; select channel 2
+	out	(counter$ctrl),a
+	xor	a		; send LSB
+	out	(counter$2),a
+	ld	a,40h		; send MSB
+	out	(counter$2),a
+
+	; Set up everything for the CYLON eye demo run in the background
+	; by the rs232$ext$status interrupt driver
+	;
+	; the value '48h' seems to give 60 revolutions per second.
+
+	ld	hl,48h		; load up number of 1ms intervals until update (60 revolutions/second)
+	ld	(init$cylon$count),hl
+	ld	(cylon$ticks),hl
+	ld	a,10000000b	; start from left side and work right
+	ld	(cylon$info),a
+	ld	a,0feh
+	out     (ledreg),a	; start display off at left
+	ret
+
+; ---->>>> SIO A - External Status Interrupt
+
+; This interrupt will occur if there are edge transitions on CTCA*, SYNCA*, DCDA*
+
+; Note: these bits can be high or low, only the transition causes an interrupt - not the level.
+
+; NOTE:	counter 2 of the 8253 is connected to the SYNCA*
+;	of the SIO - this is used here as a software timer
+;	interrupt, and to move the CYLON led display.
+
+rs232$ext$stat:	di
+		push	af
+		push	bc
+		push	de
+		push	hl
+
+; first increment the free running system counters
+
+		ld	hl,(ticks_)		; Inc. 16 bit counter
+		inc	hl
+		ld	(ticks_),hl
+
+		ld	hl, user_timer		; And the 8 bit counter
+		inc	(hl)
+
+; And see if its time to update the CYLON eye!
+
+		ld	hl,(cylon$ticks)	; see if time for an update
+		dec	hl
+		ld	a,h
+		or	l
+		jr	nz,cnotupd		; no, not yet, so return
+
+		ld	a,(cylon$info)
+		bit	7,a
+		jr	nz,cright		; jump if bit 7 = 1 (right direction)
+
+; move eye to the left
+
+		dec	a
+		cp	0ffh			; check for -1 count
+		jr	nz,leftok
+		ld	a,81h			; switch direction
+
+leftok:		jr	dispeye
+
+; move eye to the left
+
+cright:		inc	a
+		cp	88h			; all the way to the left?
+		jr	nz,dispeye
+		ld	a,6h
+
+; And display the eye
+; Enter here with A = number of positions to shift eye
+
+dispeye:	ld	(cylon$info),a
+		and	7			; mask off direction bit
+		ld	b,a
+		cp	0			; shift 0 positions
+		ld	a,1			; load initial shift value
+		jr	z,showeye		; yes, no shifting then
+
+shfteye:	sla	a			; shift eye to correct location
+		djnz	shfteye
+showeye:	cpl
+		out	(ledreg),a		; and display it
+
+		ld	hl,(init$cylon$count)	; and update number of 1ms till next update
+
+cnotupd:	ld	(cylon$ticks),hl
+
+;and service the sio registers
+
+		in	a,(sio$a$ctrl)		; kill status
+		ld	a,0010000b
+		out	(sio$a$ctrl),a		; and reset the ext status condition
+
+		pop	hl
+		pop	de
+		pop	bc
+		pop	af
+		ei
+		reti
