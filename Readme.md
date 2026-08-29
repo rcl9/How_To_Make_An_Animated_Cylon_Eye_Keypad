@@ -40,7 +40,7 @@ Channel #3 of the Intel 8253 timer chip produces a "Timer interrupt" signal:
 
 <img src="/Schematics/8253 timer.webp" alt="" style="width:75%; height:auto;"> 
 
-which itself is sent to "/Sync A" (pin 11) on the Z80 SIO (serial I/O) chip as a hardware addessable non-maskable interrrupt:
+which itself is sent to "/Sync A" (pin 11) on the Z80 SIO (serial I/O) chip as a hardware addressable non-maskable interrupt:
 
 <img src="/Schematics/Z80 SIO.webp" alt="" style="width:75%; height:auto;"> 
 
@@ -73,4 +73,3 @@ The Z80 assembly file [Cylon Eye.mac](</Src/Cylon Eye.mac>) contains the snippet
 The *cylon$setup* code initializes the 8253 timer for a 1ms interval, the Z80 SIO for interrupts on its /SYNCA line and the initial LED #1 enabled. 
 
 As the 8253 times-out it raises a Z80 non-maskable interrupt via the /SYNCA line on the SIO which in turn calls the rs232$ext$stat routine to animate the LEDs.
-
