@@ -6,21 +6,9 @@ This repository explains how I created the custom numeric keypad for my Phoenix 
 <img src="/Images/Animated_CylonEye_500.gif" alt="" style="width:100%; height:auto;">
 </div>
 
-The Phoenix MIDI computer, its two main component boards, LCD display and keypad/LED display:
+This is the Phoenix MIDI computer, its two main component boards, LCD display and keypad plus animated LED display:
 
 <img src="/Images/128b.webp" alt="" style="width:75%; height:auto;"> 
-
-## The 1ms Hardware Interrupt
-
-The sequencing of the animated 'Cylon Eye' is designed around a 1ms interrupt provided via a 8253 timer and Z80 SIO interrupt.
-
-Channel #3 of the Intel 8253 timer chip produces a "Timer interrupt" signal:
-
-<img src="/Schematics/8253 timer.webp" alt="" style="width:75%; height:auto;"> 
-
-which itself is sent to "/Sync A" (pin 11) on the Z80 SIO (serial I/O) chip as a hardware addessable non-maskable interrrupt:
-
-<img src="/Schematics/Z80 SIO.webp" alt="" style="width:75%; height:auto;"> 
 
 ## Wiring of the LEDs and Buttons:
 
@@ -43,6 +31,18 @@ The crisp and custom lettering on each button looks like it was done with an ink
 After the Letraset stenciling was complete I then applied several layers of Krylon protective spray. 40 years later it is still protecting the Letraset lettering quite well:
 
 <img src="/Images/krylon.webp" alt="" style="width:40%; height:auto;">
+
+## The 1ms Hardware Interrupt
+
+The sequencing of the animated 'Cylon Eye' is designed around a 1ms interrupt provided via a 8253 timer and Z80 SIO interrupt.
+
+Channel #3 of the Intel 8253 timer chip produces a "Timer interrupt" signal:
+
+<img src="/Schematics/8253 timer.webp" alt="" style="width:75%; height:auto;"> 
+
+which itself is sent to "/Sync A" (pin 11) on the Z80 SIO (serial I/O) chip as a hardware addessable non-maskable interrrupt:
+
+<img src="/Schematics/Z80 SIO.webp" alt="" style="width:75%; height:auto;"> 
 
 ## Schematics & Software for the Keypad
 

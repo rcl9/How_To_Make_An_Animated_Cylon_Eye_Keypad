@@ -3,7 +3,7 @@
 *
 *              Keypad Encoding Values
 *
-*    Derived from the 'Phoenix MIDI Computer' pmon.mac, 1987
+*    Derived from the 'Phoenix MIDI Computer' pmon.mac, 1987 
 *
 *    By RCL9
 *	(Rob's Retro Computing Archive)
