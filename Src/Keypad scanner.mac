@@ -1,17 +1,31 @@
-; =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-; Keypad Scanning Routine
-; =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+.comment\
+**************************************************************
+*
+*              Keypad scanning routine
+*
+*    Derived from the 'Phoenix MIDI Computer' pmon.mac, 1987
+*
+*    By RCL9
+*	(Rob's Retro Computing Archive)
+*	RetroComputingArchive@gmail.com
+*	https://github.com/rcl9
+*
+**************************************************************\
+
+#include	"keytbls.h"		; Keypad special key equates
 
 auxconfig	equ	0eh		; config. port on auxiliary board
 aux$image	db 	00		; memory image of auxiliary config port
 
-pa$data	equ	010h		; pio port a data register
+pa$data	equ	010h			; PIO port a data register
 
-extrn		keyt1			; unshifted keys table
-extrn		keyt2			; down shifted keys table
-extrn		keyt3			; up shifted keys table
+extrn		keyt1			; Unshifted keys table
+extrn		keyt2			; Down shifted keys table
+extrn		keyt3			; Up shifted keys table
 
-keypad$in:	call	scan$keypad	; wait for a character
+; ----------------------------------------------------------------------
+
+keypad$in:	call	scan$keypad	; Wait for a character
 		jr	z,keypad$in
 		push	af		; save the character
 kypdwait:	call	scan$keypad	; wait to release the key
@@ -19,7 +33,7 @@ kypdwait:	call	scan$keypad	; wait to release the key
 		pop	af
 		ret			; A = character from keypad
 
-; Scan the external keypad ( A = 0 if no character)
+; Scan the keypad ( A = 0 if no character)
 
 scan$keypad:	push	bc
 		push	de
@@ -63,7 +77,7 @@ scan1:		ld	a,(aux$image)	; pick up auliary port image
 		jr	lookupkey
 
 try2nd:		bit	1,a		; 5 --> Shift_down row?
-		jr	nz,try3rd		; no, try next row
+		jr	nz,try3rd	; no, try next row
 		ld	a,b
 		add	a,8
 		jr	lookupkey

@@ -1,5 +1,16 @@
-; Keypad Encoding tables and values
-; By Robert Lansdale, March 30, 1987.
+.comment\
+**************************************************************
+*
+*              Keypad Encoding Tables and Values
+*
+*    Derived from the 'PhoenIX MIDI Computer' pmon.mac, 1987
+*
+*    By RCL9
+*	(Rob's Retro Computing Archive)
+*	RetroComputingArchive@gmail.com
+*	https://github.com/rcl9
+*
+**************************************************************\
 
 ; NOTE: a comma can be returned from the keypad by pressing the Shift up,
 ;	or shift down keys with the YES or NO keys.
@@ -54,4 +65,3 @@ keyt3:		defb	'a','c','e','g','i',',',',',enter
 		defb	f7,f8,f9,f10,f11,f12,':',0
 
 		end
-

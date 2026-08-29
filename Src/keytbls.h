@@ -1,12 +1,18 @@
-/*
-			Keypad Encoding Equates
-		Copyright (c) 1987 By Robert Lansdale
+.comment\
+**************************************************************
+*
+*              Keypad Encoding Values
+*
+*    Derived from the 'PhoenIX MIDI Computer' pmon.mac, 1987
+*
+*    By RCL9
+*	(Rob's Retro Computing Archive)
+*	RetroComputingArchive@gmail.com
+*	https://github.com/rcl9
+*
+**************************************************************\
 
-NOTE: a comma can be returned from the keypad by pressing the Shift up,
-or shift down keys with the YES or NO keys.
-*/
-
-/* ------------------>>>>  Key Value Definitions  <<<<------------------- */
+; ------------------>>>>  Key Value Definitions  <<<<-------------------
 
 #define		CANCEL		0x03		/* cancel key (control C) */
 #define		ENTER		0x0d		/* enter key		*/
@@ -26,5 +32,3 @@ or shift down keys with the YES or NO keys.
 #define		NO_RIGHT_CURS	0x08c		/* no, or right_cursor	*/
 #define		UP_CURS		0x08d		/* up cursor key	*/
 #define		DOWN_CURS	0x08e		/* down cursor key	*/
-
-
