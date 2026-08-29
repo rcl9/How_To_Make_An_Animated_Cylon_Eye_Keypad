@@ -58,7 +58,7 @@ This is the basic chip layout on the auxiliary board:
 
 <img src="/Images/124b.webp" alt="" style="width:100%; height:auto;"> 
 
-The file [Keypad scanner.mac](</Src/Keypad scanner.mac>) contains the Z80 assembly code to scan the keypad. The routine *scan$keypad* scans the keypad and maps the 3-bit value to a corresponding ASCII value via the [mapping tables](/Src/Keytbls.mac). 
+The file [Keypad scanner.mac](</Src/Keypad scanner.mac>) contains the Z80 assembly code to scan the keypad. The routine *scan$keypad* scans the keypad and maps the 3-bit value to a corresponding ASCII value via the [mapping tables](/Src/keytbls.mac). 
 
 ## Schematics of the LED Interface
 
