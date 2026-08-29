@@ -54,11 +54,11 @@ The return 3 status bits are read back via a Z80 PIO chip:
 
 <img src="/Schematics/Z80 PIO.webp" alt="" style="width:75%; height:auto;"> 
 
-And this is the basic chip layout on the auxiliary board:
+This is the basic chip layout on the auxiliary board:
 
 <img src="/Images/124b.webp" alt="" style="width:100%; height:auto;"> 
 
-The file [Keypad scanner.mac](</Src/Keypad scanner.mac>) Z80 assembly routine scans the keypad and maps the returned 3-bit value to a corresponding ASCII value via the [mapping tables](</Src/Keytbls.mac>). 
+The file [Keypad scanner.mac](</Src/Keypad scanner.mac>) contains the Z80 assembly code to scan the keypad. The routine *scan$keypad* scans the keypad and maps the 3-bit value to a corresponding ASCII value via the [mapping tables](/Src/Keytbls.mac). 
 
 ## Schematics of the LED Interface
 
@@ -70,7 +70,7 @@ The 8 LEDs are driven by a 74LS243 tri-state latch, current limited by a 180 ohm
 
 The Z80 assembly file [Cylon Eye.mac](</Src/Cylon Eye.mac>) contains the snippets of code to implement the animated *Cylon Eye* LEDs.
 
-The *cylon$setup* code initializes the 8253 timer for 1ms intervals, the Z80 SIO for interrupts on its /SYNCA line and the initial LED #1 enabled. 
+The *cylon$setup* code initializes the 8253 timer for a 1ms interval, the Z80 SIO for interrupts on its /SYNCA line and the initial LED #1 enabled. 
 
 As the 8253 times-out it raises a Z80 non-maskable interrupt via the /SYNCA line on the SIO which in turn calls the rs232$ext$stat routine to animate the LEDs.
 
